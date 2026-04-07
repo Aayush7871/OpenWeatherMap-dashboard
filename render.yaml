@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: openweathermap-dashboard
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: waitress-serve --host 0.0.0.0 --port $PORT app:app
+    autoDeployTrigger: commit
+    healthCheckPath: /
+    envVars:
+      - key: OPENWEATHER_API_KEY
+        sync: false
