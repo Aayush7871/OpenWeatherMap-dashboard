@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-weather="default">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="hero-card card">
+        <div>
+          <p class="eyebrow">OpenWeatherMap dashboard</p>
+          <h1>Forecast-ready weather from any city or your current location.</h1>
+          <p class="hero-copy">
+            Search by city, use GPS for your current position, switch between
+            Celsius and Fahrenheit, and explore a polished 5-day forecast.
+          </p>
+        </div>
+
+        <div class="hero-controls">
+          <div class="unit-toggle" role="group" aria-label="Temperature units">
+            <button
+              type="button"
+              class="unit-button"
+              data-unit="metric"
+              aria-pressed="true"
+            >
+              &deg;C
+            </button>
+            <button
+              type="button"
+              class="unit-button"
+              data-unit="imperial"
+              aria-pressed="false"
+            >
+              &deg;F
+            </button>
+          </div>
+
+          <button id="theme-toggle" type="button" class="theme-toggle" aria-pressed="true">
+            <span id="theme-icon" aria-hidden="true">&#9728;&#65039;</span>
+            <span id="theme-label">Light Mode</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="search-card card">
+        <form id="weather-form" class="search-form">
+          <label class="sr-only" for="city-input">City name</label>
+          <input
+            id="city-input"
+            name="city"
+            type="text"
+            placeholder="Search for Mumbai, London, Tokyo..."
+            autocomplete="off"
+            required
+          />
+          <button id="search-button" type="submit" class="primary-button">
+            Search City
+          </button>
+          <button id="location-button" type="button" class="secondary-button">
+            Use Current Location
+          </button>
+        </form>
+
+        <div class="status-row">
+          <div id="loading-indicator" class="loading-indicator hidden" aria-live="polite">
+            <span class="spinner" aria-hidden="true"></span>
+            <span id="loading-text">Loading weather...</span>
+          </div>
+          <p id="status-message" class="status-message">
+            Search a city or use GPS to load the latest weather.
+          </p>
+        </div>
+      </section>
+
+      <section id="results" class="results-grid hidden" aria-live="polite">
+        <article class="current-card card">
+          <div class="current-card-top">
+            <div>
+              <p id="location-chip" class="location-chip"></p>
+              <h2 id="location-name" class="location-name"></h2>
+              <p id="local-time" class="local-time"></p>
+            </div>
+            <button id="refresh-button" type="button" class="ghost-button">
+              Refresh
+            </button>
+          </div>
+
+          <div class="current-overview">
+            <div class="current-visual">
+              <div class="glow-orb"></div>
+              <img id="current-icon" alt="" class="current-icon" />
+            </div>
+
+            <div class="current-reading">
+              <p id="current-description" class="current-description"></p>
+              <p id="current-temperature" class="current-temperature"></p>
+              <p id="feels-like" class="feels-like"></p>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stat-card">
+              <p class="stat-label">Humidity</p>
+              <p id="humidity" class="stat-value"></p>
+            </article>
+            <article class="stat-card">
+              <p class="stat-label">Wind Speed</p>
+              <p id="wind-speed" class="stat-value"></p>
+            </article>
+            <article class="stat-card">
+              <p class="stat-label">Coordinates</p>
+              <p id="coordinates" class="stat-value stat-small"></p>
+            </article>
+            <article class="stat-card">
+              <p class="stat-label">Units</p>
+              <p id="unit-system" class="stat-value stat-small"></p>
+            </article>
+          </div>
+        </article>
+
+        <article class="forecast-card card">
+          <div class="forecast-head">
+            <div>
+              <p class="eyebrow">Next 5 days</p>
+              <h2 class="forecast-title">Forecast</h2>
+            </div>
+          </div>
+
+          <div id="forecast-list" class="forecast-list"></div>
+        </article>
+      </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>
