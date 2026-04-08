@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather API Docs</title>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: "Trebuchet MS", "Segoe UI Variable", "Segoe UI", sans-serif;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 12% 18%, rgba(102, 179, 255, 0.18), transparent 26%),
+          radial-gradient(circle at 85% 12%, rgba(255, 255, 255, 0.1), transparent 20%),
+          linear-gradient(160deg, #07111f, #15324d);
+      }
+
+      .docs-shell {
+        padding: 1.25rem;
+      }
+
+      .docs-back {
+        display: inline-flex;
+        margin: 0 auto 1rem;
+        padding: 0.9rem 1.15rem;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        color: #f4f8fd;
+        text-decoration: none;
+        background: rgba(255, 255, 255, 0.07);
+      }
+
+      #swagger-ui {
+        max-width: 1180px;
+        margin: 0 auto;
+      }
+
+      .swagger-ui .topbar {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="docs-shell">
+      <a class="docs-back" href="{{ url_for('index') }}">Back to weather app</a>
+      <div id="swagger-ui"></div>
+    </main>
+
+    <script
+      src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      window.addEventListener("load", () => {
+        SwaggerUIBundle({
+          url: {{ spec_url|tojson }},
+          dom_id: "#swagger-ui",
+          deepLinking: true,
+          displayRequestDuration: true,
+          docExpansion: "list",
+          presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+          layout: "StandaloneLayout",
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -12,6 +12,7 @@ A simple Flask weather app that fetches current weather by city using the OpenWe
 - Toggle between Celsius and Fahrenheit
 - View a 5-day forecast
 - See weather icons for current conditions and forecast
+- Browse the API in Swagger UI
 - Switch between light and dark mode
 - Responsive card-based interface with loading feedback
 
@@ -46,10 +47,16 @@ A simple Flask weather app that fetches current weather by city using the OpenWe
 
 5. Open [http://127.0.0.1:5000](http://127.0.0.1:5000) in your browser.
 
+## API Docs
+
+- Swagger UI: [http://127.0.0.1:5000/swagger](http://127.0.0.1:5000/swagger)
+- OpenAPI JSON: [http://127.0.0.1:5000/api/openapi.json](http://127.0.0.1:5000/api/openapi.json)
+
 ## Notes
 
 - The app loads `OPENWEATHER_API_KEY` from a local `.env` file automatically.
 - Exported environment variables still work and take priority over `.env`.
+- Swagger UI assets are loaded from the Swagger CDN, so the docs page needs internet access.
 
 ## Deploy Online
 

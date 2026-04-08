@@ -241,7 +241,8 @@ h1 {
 
 .theme-toggle,
 .ghost-button,
-.secondary-button {
+.secondary-button,
+.docs-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -250,6 +251,11 @@ h1 {
   color: var(--text-main);
   background: var(--surface-soft);
   border: 1px solid var(--border);
+}
+
+.docs-link {
+  font-weight: 700;
+  text-decoration: none;
 }
 
 .primary-button {
@@ -543,6 +549,7 @@ h1 {
   .theme-toggle:hover,
   .primary-button:hover,
   .secondary-button:hover,
+  .docs-link:hover,
   .ghost-button:hover {
     transform: translateY(-1px);
   }

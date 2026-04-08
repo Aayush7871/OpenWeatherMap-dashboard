@@ -5,7 +5,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, url_for
 
 
 def load_env_file(filename=".env"):
@@ -173,9 +173,281 @@ def summarize_forecast(forecast_data):
     return daily_forecast
 
 
+def build_openapi_spec():
+    return {
+        "openapi": "3.0.3",
+        "info": {
+            "title": "Weather App API",
+            "version": "1.0.0",
+            "description": (
+                "Get live weather conditions and a summarized 5-day forecast "
+                "from OpenWeatherMap. Provide either a city name or a latitude "
+                "and longitude pair."
+            ),
+        },
+        "servers": [
+            {
+                "url": request.url_root.rstrip("/"),
+                "description": "Current server",
+            }
+        ],
+        "tags": [
+            {
+                "name": "Weather",
+                "description": "Fetch current weather and a short forecast.",
+            }
+        ],
+        "paths": {
+            "/api/weather": {
+                "get": {
+                    "tags": ["Weather"],
+                    "summary": "Get current weather and 5-day forecast",
+                    "description": (
+                        "Provide `city`, or provide both `lat` and `lon`. "
+                        "If both city and coordinates are sent, city lookup "
+                        "takes precedence."
+                    ),
+                    "parameters": [
+                        {
+                            "name": "city",
+                            "in": "query",
+                            "required": False,
+                            "schema": {"type": "string"},
+                            "description": "City name to resolve before fetching weather.",
+                            "example": "Mumbai",
+                        },
+                        {
+                            "name": "lat",
+                            "in": "query",
+                            "required": False,
+                            "schema": {"type": "number", "format": "float"},
+                            "description": "Latitude for coordinate-based lookup.",
+                            "example": 19.076,
+                        },
+                        {
+                            "name": "lon",
+                            "in": "query",
+                            "required": False,
+                            "schema": {"type": "number", "format": "float"},
+                            "description": "Longitude for coordinate-based lookup.",
+                            "example": 72.8777,
+                        },
+                        {
+                            "name": "units",
+                            "in": "query",
+                            "required": False,
+                            "schema": {
+                                "type": "string",
+                                "enum": ["metric", "imperial"],
+                                "default": "metric",
+                            },
+                            "description": "Temperature and wind-speed unit system.",
+                        },
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Weather returned successfully.",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/WeatherResponse"
+                                    },
+                                    "examples": {
+                                        "cityLookup": {
+                                            "summary": "Successful city search",
+                                            "value": {
+                                                "location": {
+                                                    "city": "Mumbai",
+                                                    "state": "Maharashtra",
+                                                    "country": "IN",
+                                                    "lat": 19.08,
+                                                    "lon": 72.88,
+                                                    "local_time": "6:45 PM",
+                                                },
+                                                "current": {
+                                                    "condition": "Clouds",
+                                                    "description": "Broken Clouds",
+                                                    "icon": "04d",
+                                                    "temperature": 31.4,
+                                                    "feels_like": 35.2,
+                                                    "humidity": 66,
+                                                    "wind_speed": 4.1,
+                                                },
+                                                "forecast": [
+                                                    {
+                                                        "day": "Wed",
+                                                        "date": "Apr 08",
+                                                        "description": "Light Rain",
+                                                        "icon": "10d",
+                                                        "temp_min": 27.1,
+                                                        "temp_max": 32.0,
+                                                    }
+                                                ],
+                                                "units": {
+                                                    "system": "metric",
+                                                    "temperature": "C",
+                                                    "wind_speed": "m/s",
+                                                },
+                                            },
+                                        }
+                                    },
+                                }
+                            },
+                        },
+                        "400": {
+                            "description": "Missing location input or invalid coordinates.",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/ErrorResponse"
+                                    },
+                                    "example": {
+                                        "error": "Please enter a city name or use your current location."
+                                    },
+                                }
+                            },
+                        },
+                        "404": {
+                            "description": "No weather data found for the requested location.",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/ErrorResponse"
+                                    },
+                                    "example": {
+                                        "error": 'No weather data found for "Atlantis".'
+                                    },
+                                }
+                            },
+                        },
+                        "500": {
+                            "description": "The server is missing the OpenWeatherMap API key.",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/ErrorResponse"
+                                    },
+                                    "example": {
+                                        "error": (
+                                            "OpenWeatherMap API key is missing. "
+                                            "Set the OPENWEATHER_API_KEY environment variable."
+                                        )
+                                    },
+                                }
+                            },
+                        },
+                        "502": {
+                            "description": "OpenWeatherMap could not be reached or returned an unexpected response.",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/ErrorResponse"
+                                    },
+                                    "example": {
+                                        "error": "Unable to reach OpenWeatherMap right now."
+                                    },
+                                }
+                            },
+                        },
+                    },
+                }
+            }
+        },
+        "components": {
+            "schemas": {
+                "Location": {
+                    "type": "object",
+                    "properties": {
+                        "city": {"type": "string", "example": "Mumbai"},
+                        "state": {"type": "string", "example": "Maharashtra"},
+                        "country": {"type": "string", "example": "IN"},
+                        "lat": {"type": "number", "format": "float", "example": 19.076},
+                        "lon": {"type": "number", "format": "float", "example": 72.8777},
+                        "local_time": {"type": "string", "example": "6:45 PM"},
+                    },
+                    "required": ["city", "state", "country", "lat", "lon", "local_time"],
+                },
+                "CurrentWeather": {
+                    "type": "object",
+                    "properties": {
+                        "condition": {"type": "string", "example": "Clouds"},
+                        "description": {"type": "string", "example": "Broken Clouds"},
+                        "icon": {"type": "string", "example": "04d"},
+                        "temperature": {"type": "number", "format": "float", "example": 31.4},
+                        "feels_like": {"type": "number", "format": "float", "example": 35.2},
+                        "humidity": {"type": "integer", "example": 66},
+                        "wind_speed": {"type": "number", "format": "float", "example": 4.1},
+                    },
+                    "required": [
+                        "condition",
+                        "description",
+                        "icon",
+                        "temperature",
+                        "feels_like",
+                        "humidity",
+                        "wind_speed",
+                    ],
+                },
+                "ForecastDay": {
+                    "type": "object",
+                    "properties": {
+                        "day": {"type": "string", "example": "Wed"},
+                        "date": {"type": "string", "example": "Apr 08"},
+                        "description": {"type": "string", "example": "Light Rain"},
+                        "icon": {"type": "string", "example": "10d"},
+                        "temp_min": {"type": "number", "format": "float", "example": 27.1},
+                        "temp_max": {"type": "number", "format": "float", "example": 32.0},
+                    },
+                    "required": ["day", "date", "description", "icon", "temp_min", "temp_max"],
+                },
+                "Units": {
+                    "type": "object",
+                    "properties": {
+                        "system": {"type": "string", "enum": ["metric", "imperial"]},
+                        "temperature": {"type": "string", "example": "C"},
+                        "wind_speed": {"type": "string", "example": "m/s"},
+                    },
+                    "required": ["system", "temperature", "wind_speed"],
+                },
+                "WeatherResponse": {
+                    "type": "object",
+                    "properties": {
+                        "location": {"$ref": "#/components/schemas/Location"},
+                        "current": {"$ref": "#/components/schemas/CurrentWeather"},
+                        "forecast": {
+                            "type": "array",
+                            "items": {"$ref": "#/components/schemas/ForecastDay"},
+                        },
+                        "units": {"$ref": "#/components/schemas/Units"},
+                    },
+                    "required": ["location", "current", "forecast", "units"],
+                },
+                "ErrorResponse": {
+                    "type": "object",
+                    "properties": {
+                        "error": {"type": "string"},
+                    },
+                    "required": ["error"],
+                },
+            }
+        },
+    }
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.get("/api/openapi.json")
+def openapi_spec():
+    return jsonify(build_openapi_spec())
+
+
+@app.route("/swagger")
+@app.route("/docs")
+def swagger_ui():
+    return render_template("swagger.html", spec_url=url_for("openapi_spec"))
 
 
 @app.get("/api/weather")
