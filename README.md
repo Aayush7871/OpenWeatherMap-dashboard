@@ -58,27 +58,6 @@ A simple Flask weather app that fetches current weather by city using the OpenWe
 - Exported environment variables still work and take priority over `.env`.
 - Swagger UI assets are loaded from the Swagger CDN, so the docs page needs internet access.
 
-## Deploy Online
-
-This Flask app needs a real backend host because the OpenWeather API key must stay on the server. GitHub Pages is not a good fit for this project.
-
-The repo now includes a `render.yaml` file so you can deploy it on Render:
-
-1. Open [Render Dashboard](https://dashboard.render.com/)
-2. Choose `New` -> `Blueprint`
-3. Connect this GitHub repo:
-   `https://github.com/Aayush7871/OpenWeatherMap-dashboard.git`
-4. When Render prompts for `OPENWEATHER_API_KEY`, paste your real key
-5. Deploy the service
-
-After deployment, Render will give you a public URL like:
-
-```text
-https://openweathermap-dashboard.onrender.com
-```
-
-After you get the real deployed URL, add it here in the README or in the GitHub repository website field.
-
 ## OpenWeatherMap
 
 This app uses OpenWeather's Direct Geocoding API, Current Weather Data API, and 5 day / 3 hour Forecast API:
